@@ -18,4 +18,29 @@ export const file_xlsx_to_json = (file:string, hoja:string)=>{
     }
 }
 
+// Utilidad para limpiar nombres de columnas
+const f_cleanColumnName = (name:string) => {
+    return name.replace(/\s+/g, '').replace(/[^\w]/g, '');
+}
+
+// Función que extrae llaves y las formatea
+
+export const f_getFormattedKeys = (data: any[]): [CustomError?, string[]?] => {
+    if (data.length === 0) {
+        // Retornar un error si el array está vacío
+        return [new CustomError(400, 'El arreglo de datos está vacío'), []];
+    }
+
+    const firstItem = data[0];
+    if (!firstItem) {
+        // Retornar un error si el primer elemento es inválido
+        return [new CustomError(400, 'No se encontraron datos válidos para extraer llaves'), []];
+    }
+
+    const keys = Object.keys(firstItem);
+    const formattedKeys = keys.map(key => f_cleanColumnName(key));
+
+    // Retorno sin error, solo las llaves formateadas
+    return [undefined, formattedKeys];
+}
 
