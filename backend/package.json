@@ -1,0 +1,22 @@
+{
+  "name": "xmls_to_sql",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "npx ts-node main.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@types/dotenv": "^8.2.0",
+    "@types/node-xlsx": "^0.21.0",
+    "@types/pg": "^8.11.6",
+    "dotenv": "^16.4.5",
+    "env-var": "^7.5.0",
+    "node-xlsx": "^0.24.0",
+    "pg": "^8.11.5"
+  }
+}
