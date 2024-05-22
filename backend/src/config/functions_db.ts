@@ -22,7 +22,7 @@ export const f_generateCreateTableQuery = (keys: [], tableName: string): string 
     }
     const columns = keys.map(key => `${key} VARCHAR(255)`).join(', ');
     return `
-            CREATE TABLE ${tableName} (
+            CREATE TABLE if not exists ${tableName} (
             id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
             ${columns}
             
@@ -45,15 +45,19 @@ export const f_insertDataDynamicallyToTable = async (tableName: string, keys: st
 
     const columnNames = keys.join(', ');
     const placeholders = keys.map((_, index) => `$${index + 1}`).join(', ');
-
     const insertDataQuery = `
         INSERT INTO ${tableName} (${columnNames}) VALUES (${placeholders});
     `;
 
     for (const item of jsonData) {
-        const values = keys.map(key => item[key]);
+        const keyys = Object.keys(jsonData[0]);
+        const values = keyys.map(data => item[data] == ''? null : `${item[data]}`);
         //console.log(values); // Para depuración: muestra los valores que se insertarán
+        //throw new CustomError(500,'prueba');
         const res = await f_sqlexute(insertDataQuery, values);
+        //console.log(res)
+        //throw new CustomError(500,'prueba');
+
         results.push(res);
     }
 

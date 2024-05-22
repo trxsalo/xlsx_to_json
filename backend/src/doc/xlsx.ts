@@ -1,6 +1,9 @@
 import xlsx from 'xlsx';
 import {CustomError} from "../config";
-
+const numbersInEnglish = [
+    "Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine",
+    "Ten", "Eleven", "Twelve", "Thirteen", "Fourteen", "Fifteen", "Sixteen", "Seventeen", "Eighteen", "Nineteen", "Twenty"
+];
 
 export const file_xlsx_to_json = (file:string, hoja:string)=>{
     // Cargar el archivo Excel y la hoja "SO DATA"
@@ -18,10 +21,66 @@ export const file_xlsx_to_json = (file:string, hoja:string)=>{
     }
 }
 
+const addSuffixToDuplicates = (names: string[]): string[] => {
+    const nameCount = new Map<string, number>();
+    const result: string[] = [];
+    const numbersInEnglish = [
+        "Zero",
+        "One",
+        "Two",
+        "Three",
+        "Four",
+        "Five",
+        "Six",
+        "Seven",
+        "Eight",
+        "Nine"];
+
+    names.forEach(name => {
+        // Contar ocurrencias del nombre
+        const count = nameCount.get(name) || 0;
+        nameCount.set(name, count + 1);
+
+        // Si es la primera vez, no modificar el nombre
+        if (count === 0) {
+            result.push(name);
+        } else {
+            // Si ya existe, agregar un sufijo
+            result.push(`${name}_${numbersInEnglish[count]}`);
+        }
+    });
+
+    return result;
+};
+
+const digitToWord = (digit: string): string => {
+    const words = ["Zero", "One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine"];
+    const index = parseInt(digit, 10);
+    return words[index] || "";
+};
 // Utilidad para limpiar nombres de columnas
 const f_cleanColumnName = (name:string) => {
-    return name.replace(/\s+/g, '').replace(/[^\w]/g, '');
+    const text = removeAccents(name);
+    const replacedNumbers = text.replace(/\d/g, match => digitToWord(match));
+    const normaliz = replacedNumbers.
+            replace(/\s+/g, '').
+            replace(/[^\w]/g, '').
+            replace(/\d+/g, '').
+            toLowerCase(); ;
+    return normaliz;
 }
+
+/**
+ * Elimina acentos y otros caracteres diacríticos de una cadena de texto.
+ * @param text El texto del cual eliminar los acentos y diacríticos.
+ * @returns El texto sin acentos ni diacríticos.
+ */
+const removeAccents = (text: string): string => {
+    return text
+        .normalize('NFD')  // Descompone la cadena en sus caracteres compuestos (base + diacríticos)
+        .replace(/[\u0300-\u036f]/g, '')  // Elimina los caracteres diacríticos
+        .normalize('NFC');  // Recompone los caracteres a su forma normal compuesta
+};
 
 // Función que extrae llaves y las formatea
 

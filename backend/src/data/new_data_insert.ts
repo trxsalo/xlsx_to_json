@@ -23,9 +23,11 @@ export const f_insert_new_data =  async ({
         const [err,keys] = f_getFormattedKeys(data);
         if(err) throw error;
         // @ts-ignore
-        const table =f_generateCreateTableQuery(data,name_tabla);
+        const table = f_generateCreateTableQuery(keys,name_tabla);
+        //console.log(table);
+        const query = await f_sqlexute(table);
         //Elininammos la data de esa tabla
-        const del = await f_sqlexute("delete from ${name_tabla};");
+        const del = await f_sqlexute(`delete from ${name_tabla};`);
         // @ts-ignore
         const [e,resul] =   await f_insertDataDynamicallyToTable(name_tabla,keys,data);
         if(e) throw error;
