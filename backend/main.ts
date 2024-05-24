@@ -1,21 +1,9 @@
-import {f_insert_new_data} from './src/data';
-import {CErrorResponse} from "./src/config";
 
+import {executeSaveXlsxToSql,exuteAnalitys} from './src/scripts';
 
-const main  = async ()=>{
-    try {
-        /*const ventas = await f_insert_new_data({
-            tableName:'ventas_promo',
-            sheetName:'Shop Sales Query New1',
-            filename:'1622'});*/
-        const ventas = await f_insert_new_data({
-            tableName:'ventas_promo_new',
-            sheetName:'Shop Purchase Query New',
-            filename:'Shop2'});
-    }catch(err){
-        CErrorResponse.handleError(err);
-    }
+const main = async () => {
+    await executeSaveXlsxToSql();
 }
 
-main();
 
+main();
