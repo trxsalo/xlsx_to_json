@@ -1,7 +1,6 @@
 import {CErrorResponse, f_sqlexute,f_generateCreateTableQuery,f_insertDataDynamicallyToTable,prefix} from "../config";
 import {file_xlsx_to_json,f_getFormattedKeys} from "../doc";
 //@result => tec_tst.tst_
-
 interface InsertDataParams {
     tableName: string;
     filename: string;
@@ -32,6 +31,7 @@ export const f_insert_new_data =  async ({
         const [e,resul] =   await f_insertDataDynamicallyToTable(name_tabla,keys,data);
         if(e) throw error;
         const commit = await f_sqlexute('commit');
+        return resul;
 
     }catch(err){
         CErrorResponse.handleError(err);

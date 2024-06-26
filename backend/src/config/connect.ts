@@ -7,7 +7,6 @@ const config:ConnectionConfig = {
     user:envs.USER,
     password:envs.PASS,
     database:envs.DATABASE,
-    connectionTimeoutMillis: 2000,
 };
 
 export const prefix: { shema: string, prefix: string } ={
