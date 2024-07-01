@@ -1,13 +1,30 @@
 import {dbPool as db} from './connect';
-import {QueryResult} from "pg";
+import {QueryResult, DatabaseError} from "pg";
 import {CustomError} from "./CustomError";
+import fs from "node:fs/promises";
+import * as path from "node:path";
+import {f_write_string} from "../analytics";
+
+const filePath = path.join(__dirname, 'insertDataQueries.txt');
 
 export const f_sqlexute = async (query: string, values?: any[]) => {
-    const conect = await db.connect();
+    /*const conect = await db.connect();
     const res: QueryResult = await conect.query(query, values);
     await conect.query('commit;');
     await conect.release();
-    return res;
+    return res;*/
+    const connect = await db.connect();
+    try {
+        const res: QueryResult = await connect.query(query, values);
+        await connect.query('COMMIT;');
+        return res;
+    } catch (error) {
+        await connect.query('ROLLBACK;');
+        //@ts-ignore
+        throw new CError(401, err.detail);
+    } finally {
+        await connect.release();
+    }
 }
 
 /**
@@ -25,7 +42,6 @@ export const f_generateCreateTableQuery = (keys: [], tableName: string): string 
             CREATE TABLE if not exists ${tableName} (
             id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
             ${columns}
-            
             );`;
 }
 
@@ -36,30 +52,32 @@ export const f_generateCreateTableQuery = (keys: [], tableName: string): string 
  * @param jsonData Array de objetos donde cada objeto representa una fila para insertar.
  * @returns Un arreglo con los resultados de cada inserción.
  */
-export const f_insertDataDynamicallyToTable = async (tableName: string, keys: string[], jsonData: any[]):Promise<[CustomError?, any[]?]> => {
-    let results:any[] = [];
+export const f_insertDataDynamicallyToTable = async (tableName: string, keys: string[], jsonData: any[], execute: boolean): Promise<[CustomError?, any[]?]> => {
+    let results: any[] = [];
+    let query: any;
+    const year = new Date().getFullYear();
+    const month = new Date().getMonth() + 1;
 
     if (jsonData.length === 0) {
-        return [new CustomError(400,'No se entregaron datos para insertar')]; // Retorna vacío si no hay datos
+        return [new CustomError(400, 'No se entregaron datos para insertar')]; // Retorna vacío si no hay datos
     }
 
     const columnNames = keys.join(', ');
-    const placeholders = keys.map((_, index) => `$${index + 1}`).join(', ');
-    const insertDataQuery = `
-        INSERT INTO ${tableName} (${columnNames}) VALUES (${placeholders});
+    let insertDataQuery = `
+        INSERT INTO ${tableName} (${columnNames}) VALUES
     `;
 
+    const placeholders = keys.map((_, index) => `$${index + 1}`).join(', ');
     for (const item of jsonData) {
         const keyys = Object.keys(jsonData[0]);
-        const values = keyys.map(data => item[data] == ''? null : `${item[data]}`);
-        //console.log(values); // Para depuración: muestra los valores que se insertarán
-        //throw new CustomError(500,'prueba');
-        const res = await f_sqlexute(insertDataQuery, values);
-        //console.log(res)
-        //throw new CustomError(500,'prueba');
-
-        results.push(res);
+        const values = keyys.map(data => item[data] == '' ? null : `${item[data]}`);
+        const valores = values.map(e => `'${e}'`).join(',');
+        results.push(`(${valores})`);
     }
-
-    return [undefined,results];
+    insertDataQuery += results.join(',\n') + '; \n commit;';
+    if (execute) query = await f_sqlexute(insertDataQuery);
+    // Escribe el contenido en un archivo .txt
+    const text = await f_write_string(`log-query/${year}/${month}/${tableName}-${Date.now()}`, insertDataQuery)
+    console.log(text ? 'Log Query ok' : 'Error log Query');
+    return [undefined, query?.rows || ['Save Text']];
 };

@@ -1,24 +1,26 @@
-import {f_insert_new_data} from "../data";
+
 import {CErrorResponse} from "../config";
+import {f_insert_new_data, f_insert_new_data_json} from "../data";
+
 
 export const executeSaveXlsxToSql  = async ()=>{
     try {
-        /*const ventas = await f_insert_new_data({
-            tableName:'ventas_promo',
-            sheetName:'Shop Sales Query New1',
-            filename:'1622'});*/
-        /* const ventas = await f_insert_new_data({
-             tableName:'ventas_promo_new',
-             sheetName:'Shop Purchase Query New',
-             filename:'Shop2'});*/
+        const result = await Promise.all([
+            /*f_insert_new_data({
+                tableName:'abastecimineto_so',
+                filename:'bandeo-activados',
+                sheetName:'Hoja4',
+                query_execute:false
+            }), */
 
-        const ventas = await f_insert_new_data({
-            tableName:'dail_and_model',
-            sheetName:'SO DATA',
-            filename:'ModelSO1'});
-
-        console.log(ventas);
-
+            f_insert_new_data({
+                tableName:'so_junio',
+                filename:'bandeo-activados',
+                sheetName:'Hoja1',
+                query_execute:true
+            })
+        ]);
+        console.log(result && 'Guardado correctamente');
     }catch(err){
         CErrorResponse.handleError(err);
     }
