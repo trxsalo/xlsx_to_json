@@ -108,6 +108,10 @@
     // "skipDefaultLibCheck": true,                      /* Skip type checking .d.ts file that are included with TypeScript. */
     "skipLibCheck": true,
     /* Skip type checking all .d.ts file. */
+    "paths": {
+      "@Envs/*": ["./src/config/*"],
+      "@Sequelize/*": ["./src/sequelize/*"],
+    }
   },
   "include": ["src"],
   "exclude": ["node_modules"]

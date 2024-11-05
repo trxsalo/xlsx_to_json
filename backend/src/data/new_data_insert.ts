@@ -1,5 +1,6 @@
 import {CErrorResponse, f_sqlexute,f_generateCreateTableQuery,f_insertDataDynamicallyToTable,prefix} from "../config";
 import {file_xlsx_to_json,f_getFormattedKeys} from "../doc";
+import {f_write_string} from "../analytics";
 //@result => tec_tst.tst_
 
 interface InsertDataParams {
@@ -15,6 +16,9 @@ export const f_insert_new_data =  async ({
                                              query_execute
                                          }:InsertDataParams)=>{
     try {
+        const year = new Date().getFullYear();
+        const month = new Date().getMonth() + 1;
+
         console.log(!query_execute ? 'No se insertara en la DB '+sheetName: 'Se insertara en la DB '+sheetName);
         const base_name = `${prefix.schema}.${prefix.prefix}`;
         //se crea la tabla
@@ -27,6 +31,9 @@ export const f_insert_new_data =  async ({
         if(err) throw err;
         // @ts-ignore
         const table = f_generateCreateTableQuery(keys,name_tabla);
+
+        const text = await f_write_string(`log-query/${year}/${month}/${tableName}-${Date.now()}`, table)
+        console.log(text ? 'Log Query ok' : 'Error log Query');
 
         if(query_execute) await f_sqlexute(table);
         //Elininammos la data de esa tabla

@@ -40,6 +40,7 @@ export async function f_insert_new_data_json({
         if(query_execute) await f_sqlexute(`delete from ${name_tabla};`);
         // @ts-ignore
         const [e,resul] =   await f_insertDataDynamicallyToTable(name_tabla,keys,data,query_execute);
+
         if(e) throw e;
 
 

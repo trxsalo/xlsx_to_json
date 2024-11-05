@@ -1,7 +1,6 @@
 import {dbPool as db} from './connect';
 import {QueryResult, DatabaseError} from "pg";
 import {CustomError} from "./CustomError";
-import fs from "node:fs/promises";
 import * as path from "node:path";
 import {f_write_string} from "../analytics";
 
@@ -21,13 +20,13 @@ export const f_sqlexute = async (query: string, values?: any[]) => {
     } catch (error) {
         await connect.query('ROLLBACK;');
         //@ts-ignore
-        throw new CError(401, err.detail);
+        throw new CustomError(401, error.message);
     } finally {
         await connect.release();
     }
 }
 
-/**
+/**PRIMARY KEY
  * Crea una tabla con columnas de las llaves dada
  * por defecto crea de tipo varchar y un id autoincrement
  * @param keys LLAVES
@@ -40,7 +39,7 @@ export const f_generateCreateTableQuery = (keys: [], tableName: string): string 
     const columns = keys.map(key => `${key} VARCHAR(255)`).join(', ');
     return `
             CREATE TABLE if not exists ${tableName} (
-            id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+            id INT GENERATED ALWAYS AS IDENTITY ,
             ${columns}
             );`;
 }
@@ -70,7 +69,7 @@ export const f_insertDataDynamicallyToTable = async (tableName: string, keys: st
     const placeholders = keys.map((_, index) => `$${index + 1}`).join(', ');
     for (const item of jsonData) {
         const keyys = Object.keys(jsonData[0]);
-        const values = keyys.map(data => item[data] == '' ? null : `${item[data]}`);
+        const values = keyys.map(data => item[data] == '' ? null : `${String(item[data]).replace(/'/g,'"')}`);
         const valores = values.map(e => `'${e}'`).join(',');
         results.push(`(${valores})`);
     }

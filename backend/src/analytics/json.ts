@@ -24,7 +24,7 @@ export const f_write_json = async (namefile: string, data: any[]) => {
 
         // Leer el archivo para confirmar que se ha guardado correctamente
         const savedData = await fs.readFile(filepath, 'utf-8');
-        console.log('Contenido guardado:', savedData);
+        console.log('Contenido guardado:',);
         return true;
     } catch (error) {
         console.error('Error guardando el archivo JSON:', error);

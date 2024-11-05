@@ -17,7 +17,7 @@ export const file_xlsx_to_json = (file:string, hoja:string)=>{
     if(jsonData.length == 0) {
         return [CustomError.FileNotEncontrado(), null];
     }else{
-        return [,jsonData];
+        return [undefined,jsonData];
     }
 }
 
